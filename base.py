@@ -123,12 +123,16 @@ def main():
         updates = get_updates()
         chat_id, text = get_last_chat_id_and_text(updates)
         if chat_id and text:
-            magnetic = get_magnetic(text)
-            if magnetic:
-                send_magnetic(chat_id, magnetic)
+            if text = '\start':
+                start_message = '你好，磁力链接娘在此！\n 把番号发给我，我回复给你磁力链接哦~'
+                send_message(chat_id, start_message)
             else:
-                wrong_message = '对不起，{}的磁力链接未找到'.format(text)
-                send_magnetic(chat_id, wrong_message)
+                magnetic = get_magnetic(text)
+                if magnetic:
+                    send_magnetic(chat_id, magnetic)
+                else:
+                    wrong_message = '对不起，{}的磁力链接未找到'.format(text)
+                    send_magnetic(chat_id, wrong_message)
             confirm_all_updates()
         else:
             pass
