@@ -123,7 +123,7 @@ def main():
         updates = get_updates()
         chat_id, text = get_last_chat_id_and_text(updates)
         if chat_id and text:
-            if text = '\start':
+            if text == '\start':
                 start_message = '你好，磁力链接娘在此！\n 把番号发给我，我回复给你磁力链接哦~'
                 send_message(chat_id, start_message)
             else:
