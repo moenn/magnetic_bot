@@ -29,12 +29,14 @@ def gather_magnetic(li):
     return magnetic
 
 def get_magnetic(av_num):
+    try:
 
-    li = get_search_result(av_num)
-    magnetic = gather_magnetic(li)
+        li = get_search_result(av_num)
+        magnetic = gather_magnetic(li)
     
-    return magnetic
-
+        return magnetic
+    except:
+        return None
 
 def send_magnetic(chat_id, magnetic):
     content = send_message(chat_id, magnetic)
@@ -122,7 +124,11 @@ def main():
         chat_id, text = get_last_chat_id_and_text(updates)
         if chat_id and text:
             magnetic = get_magnetic(text)
-            send_magnetic(chat_id, magnetic)
+            if magnetic:
+                send_magnetic(chat_id, magnetic)
+            else:
+                wrong_message = '对不起，{}的磁力链接未找到'.format(text)
+                send_magnetic(chat_id, wrong_message)
             confirm_all_updates()
         else:
             pass
