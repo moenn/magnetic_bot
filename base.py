@@ -3,8 +3,42 @@ import json
 import time
 from urllib.parse import quote_plus
 
+from bs4 import BeautifulSoup
+
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) \
+Chrome/63.0.3239.132 Safari/537.36"
+search_base_url = 'https://bt.sou177.com/index.php?r=files/index&kw='
+home_url = 'https://bt.sou177.com'
+headers = {
+    'user-agent':user_agent,
+
+}
+
+def get_search_result(av_num):
+
+    url = search_base_url + av_num
+    res = requests.get(url, headers=headers)
+    soup = BeautifulSoup(res.text, 'lxml')
+    li = soup.find('li', 'col-xs-12 list-group-item')
+    return li
+
+def gather_magnetic(li):
+    # /index.php?r=files/view&infohash=bf93b0afeaf0b879399c1f2f2d392baa8658f5cd
+    magnetic = 'magnet:?xt=urn:btih:' + li.a['href'][33:]
+
+    return magnetic
+
+def get_magnetic(av_num):
+
+    li = get_search_result(av_num)
+    magnetic = gather_magnetic(li)
+    
+    return magnetic
 
 
+def send_magnetic(chat_id, magnetic):
+    content = send_message(chat_id, magnetic)
+    return content
 
 
 def get_url(url):
@@ -35,6 +69,8 @@ def confirm_all_updates():
         return content
     else:
         return None
+
+
 def get_last_update_id_from_updates(updates):
     last_update_id = updates['result'][-1]['update_id']
     return last_update_id
@@ -65,6 +101,7 @@ def get_last_chat_id_and_text(updates):
     else:
         return None, None
 
+
 def send_message(chat_id, text):
     text = quote_plus(text)
     url = api_url + 'sendMessage?chat_id={}&text={}'.format(chat_id, text)
@@ -79,20 +116,21 @@ def send_message_to_last_chat_id(text):
 
 
 def main():
+    print('bot run')
     while True:
         updates = get_updates()
         chat_id, text = get_last_chat_id_and_text(updates)
         if chat_id and text:
-            print(chat_id, text)
-            send_message_to_last_chat_id(text)
+            magnetic = get_magnetic(text)
+            send_magnetic(chat_id, magnetic)
             confirm_all_updates()
         else:
             pass
         time.sleep(1)
+
 
 if __name__ == '__main__':
     with open('token', 'r') as f:
         token = f.read()
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
     main()
-
