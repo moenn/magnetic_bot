@@ -29,7 +29,7 @@ def gather_magnetic(li):
     return magnetic
 
 def get_magnetic(av_num):
-    
+
     # li = get_search_result(av_num)
     # magnetic = gather_magnetic(li)
 
@@ -101,7 +101,7 @@ def get_text_from_message(message):
 
 def get_last_chat_id_and_text(updates):
     # 存在未读消息时，获取最近一条消息
-    if updates['result']:
+    if 'result' in updates and updates['result']:
         message = updates['result'][-1]['message']
         chat_id = get_chat_id_from_message(message)
         text = get_text_from_message(message)
