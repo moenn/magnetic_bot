@@ -17,7 +17,7 @@ headers = {
 def get_search_result(av_num):
 
     url = search_base_url + av_num
-    res = requests.get(url, headers=headers)
+    res = s.get(url)
     soup = BeautifulSoup(res.text, 'lxml')
     li = soup.find('li', 'col-xs-12 list-group-item')
     return li
@@ -29,6 +29,12 @@ def gather_magnetic(li):
     return magnetic
 
 def get_magnetic(av_num):
+    
+    # li = get_search_result(av_num)
+    # magnetic = gather_magnetic(li)
+
+    # return magnetic
+
     try:
 
         li = get_search_result(av_num)
@@ -118,7 +124,7 @@ def send_message_to_last_chat_id(text):
 
 
 def main():
-    print('bot run')
+
     while True:
         updates = get_updates()
         chat_id, text = get_last_chat_id_and_text(updates)
@@ -143,4 +149,7 @@ if __name__ == '__main__':
     with open('token', 'r') as f:
         token = f.read()
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
+    print('bot run')
+    s = requests.Session()
+    s.headers.update(headers)
     main()
