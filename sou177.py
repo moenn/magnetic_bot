@@ -41,27 +41,32 @@ Chrome/63.0.3239.132 Safari/537.36"
         date = []
         filesize = []
 
-        # data = []
 
 
         for li in search_result:
-            m = 'magnet:?xt=urn:btih:{}'.format(li.a['href'][33:]) # href
+            h = 'magnet:?xt=urn:btih:{}'.format(li.a['href'][33:]) # href
+            href.append(h)
             n = li.get_text()
-            d = re.findall(r'\d{4}-\d{2}-\d{2}', n)[0] # date
-            f = re.findall(r'\d+\.?\d+\s[GM]B', n)[0] # filesize
-            
+
+
+            d = re.findall(r'\d{4}-\d{2}-\d{2}', n) # date
+            if d:
+                date.append(d[0])
+            else:
+                date.append(None)
+
+            f = re.findall(r'\d+\.?\d+\s[GM]B', n) # filesize
+            if f:
+                filesize.append(f[0])
+            else:
+                date.append(None)
+
             n = re.sub(r'\d{4}-\d{2}-\d{2}\s\d+\.?\d+\s[GM]B', '', n) # delete (date, filesize) in the name
 
-            href.append(m)
             name.append(n)
-            date.append(d)
-            filesize.append(f)
-            # data.append(li.h4.get_text())
+            
+            
 
-
-        # data = '\n'.join(data)
-        # date = re.findall(date_pattern, data)
-        # filesize = re.findall(filesize_pattern, data)
         
         key_list = list(range(len(href)))
         json_result = {key:{'href':href,'name':name,'date':date,'filesize':filesize} for key,href,name,date,filesize in zip(key_list, href,name,date,filesize)}
@@ -69,15 +74,12 @@ Chrome/63.0.3239.132 Safari/537.36"
         
 
 if __name__ == '__main__':
-    pass
-    # magnetic_178 = Magnetic_sou177()
-    # search_result = magnetic_178.get_search_result('MIDE-401')
-    # result = magnetic_178.gather_json_reslut_from_search_result(search_result)
-    # print(result)
-    # print(href, len(href))
-    # print(name, len(name))
-    # print(date, len(date))
-    # print(filesize, len(filesize))
+    # pass
+    magnetic_178 = Magnetic_sou177()
+    search_result = magnetic_178.get_search_result('DVDES-644')
+    result = magnetic_178.gather_json_reslut_from_search_result(search_result)
+    print(result)
+
 
 
     # json_result = magnetic_178.gather_json_reslut_from_search_result(search_result)
