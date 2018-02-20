@@ -90,15 +90,18 @@ def main():
                 if text == '/start' :
                     send_message(chat_id, start_message)
                 else:
-                    magnetic_sou177 = Magnetic_sou177()
-                    search_result = magnetic_sou177.get_search_result(text)
-                    result = magnetic_sou177.gather_json_reslut_from_search_result(search_result)
-                    message_to_send = []
-                    message_to_send.append('描述： {}\n日期: {}\n文件大小： {}'.format(result[0]['name'], result[0]['date'], result[0]['filesize']))
-                    message_to_send.append(result[0]['href'])
+                    try:
+                        magnetic_sou177 = Magnetic_sou177()
+                        search_result = magnetic_sou177.get_search_result(text)
+                        result = magnetic_sou177.gather_json_reslut_from_search_result(search_result)
+                        message_to_send = []
+                        message_to_send.append('描述： {}\n日期: {}\n文件大小： {}'.format(result[0]['name'], result[0]['date'], result[0]['filesize']))
+                        message_to_send.append(result[0]['href'])
 
-                    for m in message_to_send:
-                        send_message(chat_id, m)
+                        for m in message_to_send:
+                            send_message(chat_id, m)
+                    except:
+                        send_message(chat_id, '未找到{}对应的磁力链接'.format(text))
             else:
                 pass
         time.sleep(0.5)
