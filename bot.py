@@ -108,7 +108,7 @@ def main():
 
 
 if __name__ == '__main__':
-    with open(r'.\token', 'r') as f:
+    with open(r'token', 'r') as f:
         token = f.read()
     # print(token)
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
