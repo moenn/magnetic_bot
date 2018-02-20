@@ -2,86 +2,37 @@ import requests
 import json
 import time
 from urllib.parse import quote_plus
-
-from bs4 import BeautifulSoup
-
-user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) \
-Chrome/63.0.3239.132 Safari/537.36"
-search_base_url = 'https://bt.sou177.com/index.php?r=files/index&kw='
-home_url = 'https://bt.sou177.com'
-headers = {
-    'user-agent':user_agent,
-
-}
-
-def get_search_result(av_num):
-
-    url = search_base_url + av_num
-    res = s.get(url)
-    soup = BeautifulSoup(res.text, 'lxml')
-    li = soup.find('li', 'col-xs-12 list-group-item')
-    return li
-
-def gather_magnetic(li):
-    # /index.php?r=files/view&infohash=bf93b0afeaf0b879399c1f2f2d392baa8658f5cd
-    magnetic = 'magnet:?xt=urn:btih:' + li.a['href'][33:]
-
-    return magnetic
-
-def get_magnetic(av_num):
-
-    # li = get_search_result(av_num)
-    # magnetic = gather_magnetic(li)
-
-    # return magnetic
-
-    try:
-
-        li = get_search_result(av_num)
-        magnetic = gather_magnetic(li)
-    
-        return magnetic
-    except:
-        return None
-
-def send_magnetic(chat_id, magnetic):
-    content = send_message(chat_id, magnetic)
-    return content
+from sou177 import Magnetic_sou177
 
 
 def get_url(url):
-    response = requests.get(url)
-    content_str = response.content.decode('utf-8')
-    content_json = json.loads(content_str)
-    return content_json
-
+    response = requests.get(url).json()
+    return response
 
 def get_me():
     url = api_url + 'getMe'
-    content = get_url(url)
-    return content
-
+    response = get_url(url)
+    return response
 
 def get_updates():
-    url = api_url + 'getUpdates?timeout=100'
-    content = get_url(url)
-    return content
+    # url = api_url + 'getUpdates?timeout=100'
+    url = api_url + 'getUpdates'
+    response = get_url(url)
+    return response
 
+def get_last_update_id_from_updates(updates):
+    last_update_id = updates['result'][-1]['update_id']
+    return last_update_id
 
 def confirm_all_updates():
     updates = get_updates()
     if updates['result']:
         last_update_id = get_last_update_id_from_updates(updates)
         url = api_url + 'getUpdates?offset={}'.format(last_update_id+1)
-        content = get_url(url)
-        return content
+        response = get_url(url)
+        return response
     else:
         return None
-
-
-def get_last_update_id_from_updates(updates):
-    last_update_id = updates['result'][-1]['update_id']
-    return last_update_id
 
 
 def get_chat_id_from_message(message):
@@ -99,13 +50,15 @@ def get_text_from_message(message):
     return text
 
 
-def get_last_chat_id_and_text(updates):
+def get_last_chat_id_and_text():
+    updates = get_updates()
     # 存在未读消息时，获取最近一条消息
     if 'result' in updates and updates['result']:
         message = updates['result'][-1]['message']
         chat_id = get_chat_id_from_message(message)
         text = get_text_from_message(message)
         return chat_id, text
+    # 消息列表为空，返回 None
     else:
         return None, None
 
@@ -113,43 +66,32 @@ def get_last_chat_id_and_text(updates):
 def send_message(chat_id, text):
     text = quote_plus(text)
     url = api_url + 'sendMessage?chat_id={}&text={}'.format(chat_id, text)
-    content = get_url(url)
-    return content
+    response = get_url(url)
+    return response
 
 
 def send_message_to_last_chat_id(text):
-    chat_id, _ = get_last_chat_id_and_text(get_updates())
-    content = send_message(chat_id, text)
-    return content
-
-
-def main():
-
-    while True:
-        updates = get_updates()
-        chat_id, text = get_last_chat_id_and_text(updates)
-        if chat_id and text:
-            if text == '/start':
-                start_message = '你好，磁力链接娘在此！💕\n发送番号给我，我回复给你磁力链接哦~(如：RBD-865)'
-                send_message(chat_id, start_message)
-            else:
-                magnetic = get_magnetic(text)
-                if magnetic:
-                    send_magnetic(chat_id, magnetic)
-                else:
-                    wrong_message = '对不起，{}的磁力链接未找到'.format(text)
-                    send_magnetic(chat_id, wrong_message)
-            confirm_all_updates()
-        else:
-            pass
-        time.sleep(1)
-
+    chat_id, _ = get_last_chat_id_and_text()
+    response = send_message(chat_id, text)
+    return response
 
 if __name__ == '__main__':
-    with open('token', 'r') as f:
+    with open(r'.\token', 'r') as f:
         token = f.read()
+    # print(token)
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
-    print('bot run')
-    s = requests.Session()
-    s.headers.update(headers)
-    main()
+    no_message_flag = {'ok': True, 'result': []}
+
+    magnetic_sou177 = Magnetic_sou177()
+    search_result = magnetic_sou177.get_search_result('MIDE-401')
+    result = magnetic_sou177.gather_json_reslut_from_search_result(search_result)
+    text = json.dumps(result[0])
+    # print(type(res))
+    example = 'www.fuli123.gq发布，福利资源，日日更新 | EYAN-038 MIAD-835 MEYD-071 MDV-012 QN-006 MUKD-354'
+    print(type(text))
+    print(type(example))
+    print(example.encode('utf-8'), type(example.encode('utf-8')))
+    print(text.encode('utf-8'), type(text.encode('utf-8')))
+    # print(text.encode('utf-16'))
+    # send_message(408371980, example)
+    # send_message(408371980, text)
