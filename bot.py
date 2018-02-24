@@ -99,6 +99,15 @@ def gather_message_to_send_from_text(text):
     except:
         return None
 
+def gather_data_from_updates(updates):
+    chat_id, text = get_last_chat_id_and_text(updates)
+    first_name = get_first_name_from_updates(updates)
+    chat_type = judge_last_chat_type(updates)
+    if chat_type == 'group':
+        group_id = updates['result'][-1]['message']['chat']['id']
+    else
+        group_id = None
+    return chat_id, text, first_name, chat_type, group_id
 
 def main():
     print('Bot starts.')
@@ -108,14 +117,7 @@ def main():
         updates = get_updates()
         if updates['ok'] == True and updates['result']:
             confirm_all_updates(updates)
-            chat_id, text = get_last_chat_id_and_text(updates)
-            first_name = get_first_name_from_updates(updates)
-            chat_type = judge_last_chat_type(updates)
-
-            if chat_type == 'group':
-                group_id = updates['result'][-1]['message']['chat']['id']
-            else:
-                group_id = None
+            chat_id, first_name, text, chat_type, group_id = gather_data_from_updates(updates)
             print(chat_id, first_name, text, chat_type, group_id)
             # 接收到 /start
             if text == '/start':
@@ -132,13 +134,13 @@ def main():
                         for message in message_to_send:
                             send_message(chat_id, message)
                     else:
-                        send_message(chat_id, '未找到{}对应的磁力链接'.format(text))
+                        send_message(chat_id, '未找到 {} 对应的磁力链接'.format(text))
                 elif chat_type == 'group':
                     if message_to_send:
                         for message in message_to_send:
                             send_message(group_id, message)
                     else:
-                        send_message(group_id, '@{} 未找到{}对应的磁力链接'.format(first_name, text))
+                        send_message(group_id, '@{} 未找到 {} 对应的磁力链接'.format(first_name, text))
                 else:
                     pass
         else:
@@ -151,7 +153,6 @@ if __name__ == '__main__':
     # 读取 token 等
     with open(r'config', 'r', encoding='utf-8') as f:
         config = json.loads(f.read())
-    print(config)
     token = config['token']
     start_message_private = config['start_message_private']
     start_message_group = config['start_message_group']
