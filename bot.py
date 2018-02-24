@@ -78,12 +78,14 @@ def judge_last_chat_type(updates):
     type_ = updates['result'][-1]['message']['chat']['type']
     return type_
 
-
-def gather_message_to_send_from_text(text):
+def preprocess_text_from_user(text):
     if text.startswith('/'):
         text = text.replace('/', '')
     if text.endswith('@magnetic_bot'):
-        text = text.replace('@magnetic_bot', '')
+        text = text.replace('@magnetic_bot', '')  
+    return text
+
+def gather_message_to_send_from_text(text):
     try:
         magnetic_sou177 = Magnetic_sou177()
         search_result = magnetic_sou177.get_search_result(text)
@@ -109,23 +111,35 @@ def gather_data_from_updates(updates):
     else:
         data['group_id'] = None
     
-    print(data.items())
+    print('{} {} {} {} {}'.format(data['chat_id'], data['text'], data['first_name'], data['chat_type'], data['group_id']))
     return data
     
 
 def handle_start_message(data):
-    # 接收到 /start
-    if data['text'] == '/start':
-        if not data['group_id']:
-            send_message(data['chat_id'], start_message_private)
-    elif data['text'] == '/start@magnetic_bot':
-        if data['group_id']:
-            send_message(data['group_id'], start_message_group)
+    # 群组聊天
+    if data['chat_type'] == 'group':
+        send_message(data['group_id'], start_message_group)
+    elif data['chat_type'] == 'private':
+        send_message(data['chat_id'], start_message_private)
     else:
         pass    
-    return None
 
-
+def handle_avnum_message(data):
+    message_to_send = gather_message_to_send_from_text(data['text'])
+    if data['chat_type'] == 'group':
+        if message_to_send != None:
+            for message in message_to_send:
+                send_message(data['group_id'], message)
+        else:
+            send_message(data['group_id'], '@{} 未找到 {} 对应的磁力链接'.format(data['first_name'], data['text']))
+    elif chat_type == 'private':
+        if message_to_send != None:
+            for message in message_to_send:
+                send_message(data['chat_id'], message)
+        else:
+            send_message(data['chat_id'], '未找到 {} 对应的磁力链接'.format(data['text']))
+    else:
+        pass
 
 def main():
     print('Bot starts.')
@@ -136,24 +150,13 @@ def main():
         if updates['ok'] == True and updates['result']:
             confirm_all_updates(updates)
             data = gather_data_from_updates(updates)
-            handle_start_message(data)
-            # # 接收到其他信息都使用其搜索磁力链接
-            # else:
-            #     message_to_send = gather_message_to_send_from_text(text)
-            #     if chat_type == 'private':
-            #         if message_to_send:
-            #             for message in message_to_send:
-            #                 send_message(chat_id, message)
-            #         else:
-            #             send_message(chat_id, '未找到 {} 对应的磁力链接'.format(text))
-            #     elif chat_type == 'group':
-            #         if message_to_send:
-            #             for message in message_to_send:
-            #                 send_message(group_id, message)
-            #         else:
-            #             send_message(group_id, '@{} 未找到 {} 对应的磁力链接'.format(first_name, text))
-            #     else:
-            #         pass
+            data['text'] = preprocess_text_from_user(data['text'])
+            if data['text'] == 'start':
+                handle_start_message(data)
+            else:
+                handle_avnum_message(data)
+            # 接收到其他信息都使用其搜索磁力链接
+
         else:
             pass
         time.sleep(0.5)
@@ -169,9 +172,5 @@ if __name__ == '__main__':
     start_message_group = config['start_message_group']
 
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
-    # result = get_me()
-    # confirm_all_updates()
-    # result = get_updates()
-    # print(result)
 
     main()
