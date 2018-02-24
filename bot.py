@@ -117,7 +117,7 @@ def handle_start_message(data):
     # 接收到 /start
     if data['text'] == '/start':
         if not data['group_id']:
-            send_message(chat_id, start_message_private)
+            send_message(data['chat_id'], start_message_private)
     elif data['text'] == '/start@magnetic_bot':
         if data['group_id']:
             send_message(data['group_id'], start_message_group)
