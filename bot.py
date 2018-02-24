@@ -100,14 +100,31 @@ def gather_message_to_send_from_text(text):
         return None
 
 def gather_data_from_updates(updates):
-    chat_id, text = get_last_chat_id_and_text(updates)
-    first_name = get_first_name_from_updates(updates)
-    chat_type = judge_last_chat_type(updates)
-    if chat_type == 'group':
-        group_id = updates['result'][-1]['message']['chat']['id']
+    data['chat_id'],data['text'] = get_last_chat_id_and_text(updates)
+    data['first_name'] = get_first_name_from_updates(updates)
+    data['chat_type'] = judge_last_chat_type(updates)
+    if data['chat_type'] == 'group':
+        data['group_id'] = updates['result'][-1]['message']['chat']['id']
     else:
-        group_id = None
-    return chat_id, text, first_name, chat_type, group_id
+        data['group_id'] = None
+    
+    print(data.items())
+    return data
+    
+
+def handle_start_message(data):
+    # 接收到 /start
+    if data['text'] == '/start':
+        if not data['group_id']:
+            send_message(chat_id, start_message_private)
+    elif data['text'] == '/start@magnetic_bot':
+        if data['group_id']:
+            send_message(data['group_id'], start_message_group)
+    else:
+        pass    
+    return None
+
+
 
 def main():
     print('Bot starts.')
@@ -117,32 +134,25 @@ def main():
         updates = get_updates()
         if updates['ok'] == True and updates['result']:
             confirm_all_updates(updates)
-            chat_id, text, first_name, chat_type, group_id = gather_data_from_updates(updates)
-            print(chat_id, first_name, text, chat_type, group_id)
-            # 接收到 /start
-            if text == '/start':
-                if not group_id:
-                    send_message(chat_id, start_message_private)
-            elif text == '/start@magnetic_bot':
-                if group_id:
-                    send_message(group_id, start_message_group)
-            # 接收到其他信息都使用其搜索磁力链接
-            else:
-                message_to_send = gather_message_to_send_from_text(text)
-                if chat_type == 'private':
-                    if message_to_send:
-                        for message in message_to_send:
-                            send_message(chat_id, message)
-                    else:
-                        send_message(chat_id, '未找到 {} 对应的磁力链接'.format(text))
-                elif chat_type == 'group':
-                    if message_to_send:
-                        for message in message_to_send:
-                            send_message(group_id, message)
-                    else:
-                        send_message(group_id, '@{} 未找到 {} 对应的磁力链接'.format(first_name, text))
-                else:
-                    pass
+            data = gather_data_from_updates(updates)
+            handle_start_message(data)
+            # # 接收到其他信息都使用其搜索磁力链接
+            # else:
+            #     message_to_send = gather_message_to_send_from_text(text)
+            #     if chat_type == 'private':
+            #         if message_to_send:
+            #             for message in message_to_send:
+            #                 send_message(chat_id, message)
+            #         else:
+            #             send_message(chat_id, '未找到 {} 对应的磁力链接'.format(text))
+            #     elif chat_type == 'group':
+            #         if message_to_send:
+            #             for message in message_to_send:
+            #                 send_message(group_id, message)
+            #         else:
+            #             send_message(group_id, '@{} 未找到 {} 对应的磁力链接'.format(first_name, text))
+            #     else:
+            #         pass
         else:
             pass
         time.sleep(0.5)
