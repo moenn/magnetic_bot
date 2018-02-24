@@ -132,7 +132,7 @@ def handle_avnum_message(data):
                 send_message(data['group_id'], message)
         else:
             send_message(data['group_id'], '@{} 未找到 {} 对应的磁力链接'.format(data['first_name'], data['text']))
-    elif chat_type == 'private':
+    elif data['chat_type'] == 'private':
         if message_to_send != None:
             for message in message_to_send:
                 send_message(data['chat_id'], message)
