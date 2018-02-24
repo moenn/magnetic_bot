@@ -102,17 +102,16 @@ def gather_message_to_send_from_text(text):
 
 def main():
     print('Bot starts.')
-    updates = get_updates()
-    confirm_all_updates(updates)
+    # 清除所有历史消息
+    confirm_all_updates(get_updates())
     while True:
         updates = get_updates()
         if updates['ok'] == True and updates['result']:
             confirm_all_updates(updates)
             chat_id, text = get_last_chat_id_and_text(updates)
             first_name = get_first_name_from_updates(updates)
-            # print(chat_id, text)
             chat_type = judge_last_chat_type(updates)
-            # print(chat_type)
+
             if chat_type == 'group':
                 group_id = updates['result'][-1]['message']['chat']['id']
             else:
@@ -121,10 +120,10 @@ def main():
             # 接收到 /start
             if text == '/start':
                 if not group_id:
-                    send_message(chat_id, start_message)
+                    send_message(chat_id, start_message_private)
             elif text == '/start@magnetic_bot':
                 if group_id:
-                    send_message(group_id, start_message)
+                    send_message(group_id, start_message_group)
             # 接收到其他信息都使用其搜索磁力链接
             else:
                 message_to_send = gather_message_to_send_from_text(text)
@@ -147,13 +146,17 @@ def main():
         time.sleep(0.5)
 
 
+
 if __name__ == '__main__':
-    with open(r'token', 'r') as f:
-        token = f.read()
-    # print(token)
+    # 读取 token 等
+    with open(r'config', 'r', encoding='utf-8') as f:
+        config = json.loads(f.read())
+    print(config)
+    token = config['token']
+    start_message_private = config['start_message_private']
+    start_message_group = config['start_message_group']
+
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
-    # no_message_flag = {'ok': True, 'result': []}
-    start_message = '你好，磁力链接娘！💕\n发送番号，得到对应的磁力链接哦~(例子：RBD-865)'
     # result = get_me()
     # confirm_all_updates()
     # result = get_updates()
