@@ -105,7 +105,7 @@ def gather_data_from_updates(updates):
     chat_type = judge_last_chat_type(updates)
     if chat_type == 'group':
         group_id = updates['result'][-1]['message']['chat']['id']
-    else
+    else:
         group_id = None
     return chat_id, text, first_name, chat_type, group_id
 
