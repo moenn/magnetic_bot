@@ -117,7 +117,7 @@ def main():
         updates = get_updates()
         if updates['ok'] == True and updates['result']:
             confirm_all_updates(updates)
-            chat_id, first_name, text, chat_type, group_id = gather_data_from_updates(updates)
+            chat_id, text, first_name, chat_type, group_id = gather_data_from_updates(updates)
             print(chat_id, first_name, text, chat_type, group_id)
             # 接收到 /start
             if text == '/start':
