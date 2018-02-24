@@ -100,6 +100,7 @@ def gather_message_to_send_from_text(text):
         return None
 
 def gather_data_from_updates(updates):
+    data = {}
     data['chat_id'],data['text'] = get_last_chat_id_and_text(updates)
     data['first_name'] = get_first_name_from_updates(updates)
     data['chat_type'] = judge_last_chat_type(updates)
