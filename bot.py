@@ -4,14 +4,17 @@ import time
 from urllib.parse import quote_plus
 from sou177 import get_magnetic_json_result_from_av_num
 
-class Bot(object):
-    """docstring for Bot"""
-    def __init__(self, arg):
-        self.arg = arg
+# class Bot(object):
+#     """docstring for Bot"""
+#     def __init__(self, arg):
+#         self.arg = arg
         
 
 def get_url(url):
-    response = requests.get(url).json()
+    try:
+        response = requests.get(url).json()
+    except:
+        response = None
     return response
 
 
@@ -34,9 +37,10 @@ def get_last_update_id_from_updates(updates):
 
 
 def confirm_all_updates(updates):
-    if updates['result']:
+    # 成功收到消息，且消息不为空
+    if updates['ok'] == True and updates['result']:
         last_update_id = get_last_update_id_from_updates(updates)
-        url = api_url + 'getUpdates?offset={}'.format(last_update_id+1)
+        url = api_url + 'getUpdates?offset={}'.format(last_update_id + 1)
         response = get_url(url)
         return response
     else:
@@ -151,6 +155,7 @@ def main():
     while True:
         updates = get_updates()
         if updates['ok'] == True and updates['result']:
+            start_time = time.time()
             confirm_all_updates(updates)
             data = gather_data_from_updates(updates)
             data['text'] = preprocess_text_from_user(data['text'])
@@ -158,11 +163,19 @@ def main():
                 handle_start_message(data)
             else:
                 handle_avnum_message(data)
+
+            send_interval_message(start_time, data)
             # 接收到其他信息都使用其搜索磁力链接
 
         else:
             pass
         time.sleep(0.5)
+
+def send_interval_message(start_time, data):
+    end_time = time.time()
+    interval = end_time - start_time
+    interval_message = "共耗时 {} s".format(interval)   
+    send_message(data['chat_id'], interval_message)
 
 
 
@@ -175,5 +188,8 @@ if __name__ == '__main__':
     start_message_group = config['start_message_group']
 
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
-
+    # res = get_updates()
+    # print(res)
     main()
+
+
