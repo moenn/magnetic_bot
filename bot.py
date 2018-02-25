@@ -153,6 +153,7 @@ def main():
     while True:
         updates = get_updates()
         if updates['ok'] == True and updates['result']:
+            print(updates)
             start_time = time.time()
             confirm_all_updates(updates)
             data = gather_data_from_updates(updates)
