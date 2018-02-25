@@ -2,8 +2,13 @@ import requests
 import json
 import time
 from urllib.parse import quote_plus
-from sou177 import Magnetic_sou177
+from sou177 import get_magnetic_json_result_from_av_num
 
+class Bot(object):
+    """docstring for Bot"""
+    def __init__(self, arg):
+        self.arg = arg
+        
 
 def get_url(url):
     response = requests.get(url).json()
@@ -87,14 +92,12 @@ def preprocess_text_from_user(text):
 
 def gather_message_to_send_from_text(text):
     try:
-        magnetic_sou177 = Magnetic_sou177()
-        search_result = magnetic_sou177.get_search_result(text)
-        result = magnetic_sou177.gather_json_reslut_from_search_result(
-            search_result)
+
+        json_result = get_magnetic_json_result_from_av_num(text)
         message_to_send = []
         message_to_send.append('描述： {}\n日期: {}\n文件大小： {}'.format(
-            result[0]['name'], result[0]['date'], result[0]['filesize']))
-        message_to_send.append(result[0]['href'])
+            json_result[0]['name'], json_result[0]['date'], json_result[0]['filesize']))
+        message_to_send.append(json_result[0]['magnetic'])
 
         return message_to_send
 
