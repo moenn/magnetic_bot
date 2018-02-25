@@ -3,6 +3,7 @@ import json
 import time
 from urllib.parse import quote_plus
 from sou177 import get_magnetic_json_result_from_av_num
+from torrent_kitty import get_magnetic_json_result_from_av_num_torrent_kitty
 
 # class Bot(object):
 #     """docstring for Bot"""
@@ -63,16 +64,12 @@ def get_text_from_updates(updates):
 
 
 def get_last_chat_id_and_text(updates):
-    # updates = get_updates()
-    # 存在未读消息时，获取最近一条消息
-    # if 'result' in updates and updates['result']:
+
     message = updates['result'][-1]['message']
     chat_id = get_chat_id_from_updates(updates)
     text = get_text_from_updates(updates)
     return chat_id, text
-    # 消息列表为空，返回 None
-    # else:
-    #     return None, None
+
 
 
 def send_message(chat_id, text):
@@ -97,7 +94,8 @@ def preprocess_text_from_user(text):
 def gather_message_to_send_from_text(text):
     try:
 
-        json_result = get_magnetic_json_result_from_av_num(text)
+        # json_result = get_magnetic_json_result_from_av_num(text)
+        json_result = get_magnetic_json_result_from_av_num_torrent_kitty(text)
         message_to_send = []
         message_to_send.append('描述： {}\n日期: {}\n文件大小： {}'.format(
             json_result[0]['name'], json_result[0]['date'], json_result[0]['filesize']))
