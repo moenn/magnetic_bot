@@ -95,7 +95,7 @@ def gather_message_to_send_from_text(text):
     try:
 
         # json_result = get_magnetic_json_result_from_av_num(text)
-        json_result = get_magnetic_json_result_from_av_num_torrent_kitty(text)
+        json_result = get_magnetic_json_result_from_av_num(text)
         message_to_send = []
         message_to_send.append('描述： {}\n日期: {}\n文件大小： {}'.format(
             json_result[0]['name'], json_result[0]['date'], json_result[0]['filesize']))
@@ -179,11 +179,11 @@ def send_interval_message(start_time, data):
 
 
 if __name__ == '__main__':
-    # 读取 token 等
+    # 读取 token 
     with open(r'token', 'r', encoding='utf-8') as f:
         data = json.loads(f.read())
     token = data['token']
-
+    # 读取 config
     with open(r'config', 'r', encoding='utf-8') as f:
         config = json.loads(f.read())
         start_message_private = config['start_message_private']
