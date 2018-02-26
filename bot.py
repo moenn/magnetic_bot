@@ -129,6 +129,9 @@ def handle_start_message(data):
     else:
         pass    
 
+def handle_about_message(data):
+    send_message(data['chat_id'], about_message)
+
 def handle_avnum_message(data):
     message_to_send = gather_message_to_send_from_text(data['text'])
     if data['chat_type'] == 'group':
@@ -160,6 +163,8 @@ def main():
             data['text'] = preprocess_text_from_user(data['text'])
             if data['text'] == 'start':
                 handle_start_message(data)
+            elif data['text'] == 'about':
+                handle_about_message(data)
             else:
                 handle_avnum_message(data)
 
@@ -188,7 +193,7 @@ if __name__ == '__main__':
         config = json.loads(f.read())
         start_message_private = config['start_message_private']
         start_message_group = config['start_message_group']
-        
+        about_message = config['about_message']
 
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
     # res = get_updates()
