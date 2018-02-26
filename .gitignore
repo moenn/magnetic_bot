@@ -1,3 +1,4 @@
 test*.*
 token
 __pycache__
+tg_api_json_view
