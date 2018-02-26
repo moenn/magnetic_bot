@@ -180,11 +180,15 @@ def send_interval_message(start_time, data):
 
 if __name__ == '__main__':
     # 读取 token 等
+    with open(r'token', 'r', encoding='utf-8') as f:
+        data = json.loads(f.read())
+    token = data['token']
+
     with open(r'config', 'r', encoding='utf-8') as f:
         config = json.loads(f.read())
-    token = config['token']
-    start_message_private = config['start_message_private']
-    start_message_group = config['start_message_group']
+        start_message_private = config['start_message_private']
+        start_message_group = config['start_message_group']
+        
 
     api_url = 'https://api.telegram.org/bot{}/'.format(token)
     # res = get_updates()
