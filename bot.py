@@ -26,8 +26,8 @@ def get_me():
 
 
 def get_updates():
-    # url = api_url + 'getUpdates?timeout=100'
-    url = api_url + 'getUpdates'
+    url = api_url + 'getUpdates?timeout=100'
+    # url = api_url + 'getUpdates'
     response = get_url(url)
     return response
 
@@ -155,24 +155,25 @@ def main():
     confirm_all_updates(get_updates())
     while True:
         updates = get_updates()
-        if updates['ok'] == True and updates['result']:
-            print(updates)
-            start_time = time.time()
-            confirm_all_updates(updates)
-            data = gather_data_from_updates(updates)
-            data['text'] = preprocess_text_from_user(data['text'])
-            if data['text'] == 'start':
-                handle_start_message(data)
-            elif data['text'] == 'about':
-                handle_about_message(data)
+        if updates:
+            if updates['ok'] == True and updates['result']:
+                print(updates)
+                start_time = time.time()
+                confirm_all_updates(updates)
+                data = gather_data_from_updates(updates)
+                data['text'] = preprocess_text_from_user(data['text'])
+                if data['text'] == 'start':
+                    handle_start_message(data)
+                elif data['text'] == 'about':
+                    handle_about_message(data)
+                else:
+                    handle_avnum_message(data)
+
+                send_interval_message(start_time, data)
+                # 接收到其他信息都使用其搜索磁力链接
+
             else:
-                handle_avnum_message(data)
-
-            send_interval_message(start_time, data)
-            # 接收到其他信息都使用其搜索磁力链接
-
-        else:
-            pass
+                pass
         time.sleep(0.5)
 
 def send_interval_message(start_time, data):
